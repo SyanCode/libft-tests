@@ -1,15 +1,28 @@
 # Tests libft
 
-Les commandes ci-dessous sont a lancer dans PowerShell, depuis le dossier
-`libft-tests`. Elles supposent que le projet `libft` se trouve dans le dossier
-voisin `..\libft`. Modifiez `$libft` si votre projet se trouve ailleurs.
+## Depuis le dossier du projet libft
 
-## Compiler la libft
+Dans PowerShell, placez-vous a la racine du projet libft (le dossier qui
+contient `libft.h` et le `Makefile`), puis initialisez les deux chemins avant
+de lancer les tests. Exemple pour une arborescence ou `42cc` et `42\libft-tests`
+sont dans le meme dossier parent :
 
 ```powershell
-$libft = "..\libft"
-make -C $libft
+$libft = (Get-Location).Path
+$tests = "..\42\libft-tests"
+make
 ```
+
+Si les tests sont dans un autre dossier, adaptez `$tests`. Verifiez les chemins
+avant de compiler :
+
+```powershell
+Test-Path "$libft\libft.h"
+Test-Path "$libft\libft.a"
+Test-Path "$tests\libc1.c"
+```
+
+Les trois commandes doivent afficher `True`.
 
 ## Compiler et lancer toutes les suites
 
@@ -17,22 +30,22 @@ make -C $libft
 $suites = @("libc1", "libc2", "libc3", "libc4", "fs1", "fs2", "bonus")
 foreach ($suite in $suites) {
     Write-Host "`n=== $suite ==="
-    gcc -std=c99 -Wall -Wextra -Werror -I $libft "$suite.c" "$libft\libft.a" -o "$suite.exe"
+    gcc -std=c99 -Wall -Wextra -Werror -I $libft "$tests\$suite.c" "$libft\libft.a" -o "$tests\$suite.exe"
     if ($LASTEXITCODE -ne 0) { break }
-    & ".\$suite.exe"
+    & "$tests\$suite.exe"
     if ($LASTEXITCODE -ne 0) { break }
 }
 ```
 
-## Lancer une seule suite
+## Compiler et lancer une seule suite
 
 Exemple avec `libc1` :
 
 ```powershell
-$libft = "..\libft"
-gcc -std=c99 -Wall -Wextra -Werror -I $libft libc1.c "$libft\libft.a" -o libc1.exe
-if ($LASTEXITCODE -eq 0) { .\libc1.exe }
+gcc -std=c99 -Wall -Wextra -Werror -I $libft "$tests\libc1.c" "$libft\libft.a" -o "$tests\libc1.exe"
+if ($LASTEXITCODE -eq 0) { & "$tests\libc1.exe" }
 ```
 
-Les suites affichent leurs fonctions par sections et indiquent les valeurs
-attendues. Il faut comparer les resultats affiches aux valeurs attendues.
+Si la commande indique `cannot find \libft.a`, `$libft` n'a pas ete initialise
+dans la session PowerShell courante. Definissez-le comme indique plus haut,
+puis relancez les commandes.
